@@ -19,19 +19,17 @@ spaceStr: .ascii " "
         .set spaceStr_size, .-spaceStr
 
 .data
-test0: .word 255, 0, 128, 1, 167, 133, 111, 144, 140, 135, 159, 154, 148, 50, 100, 150, 200, 250, 255
+test0: .word 255, 0, 128, 1 #167, 133, 111, 144, 140, 135, 159, 154, 148, 50, 100, 150, 200, 250, 255
         .set arr_size0, .test0
-# test1: .word 167, 133, 111, 144, 140, 135, 159, 154, 148
-#         .set arr_size1, .test1
-# test2: .word 50, 100, 150, 200, 250, 255
-#         .set arr_size2, .test2
-
+test1: .word 167, 133, 111, 144, 140, 135, 159, 154, 148
+        .set arr_size1, .test1
+test2: .word 50, 100, 150, 200, 250, 255
+        .set arr_size2, .test2
 .text
 
 _start:
     # addi sp, sp, -4       # create space for buffer of print function
     li s5, 0x4            # base memory address to store results
-    li s6, 3              # number of test cases
 
 main:
     la a4, test0          # a4: the base address of test0
@@ -39,16 +37,16 @@ main:
     addi s3, x0, 0        # s3: caseNum = 0
     jal ra, bit_plane_slicing
     
-    # la a4, test1          # a4: the base address of test1
-    slli s2, s2, 2
-    add a4, a4, s2
+    la a4, test1          # a4: the base address of test1
+    # slli s2, s2, 2
+    # add a4, a4, s2
     addi s2, x0, 9        # s2: the size of test1
     addi s3, x0, 1        # s3: caseNum = 1
     jal ra, bit_plane_slicing
     
-    # la a4, test2          # a4: the base address of test2
-    slli s2, s2, 2
-    add a4, a4, s2
+    la a4, test2          # a4: the base address of test2
+    # slli s2, s2, 2
+    # add a4, a4, s2
     addi s2, x0, 6        # s2: the size of test2
     addi s3, x0, 2        # s3: caseNum = 2
     jal ra, bit_plane_slicing
@@ -124,18 +122,15 @@ isEqual:
     addi s4, x0, 255      # arr[i] = 255
 
 goOn2:
-    # printLoopInside:
-    # add a0, x0, s4
-    # li a7, 1
-    # ecall
-    # la a0, spaceStr
-    # li a7, 4
-    # ecall
     addi sp, sp, -4
     sw ra, 0(sp)
     jal ra, printLoopInside    # printf("%u ", arr[i])
     lw ra, 0(sp)
     addi sp, sp, 4
+
+    # save the result in memory
+    sw s4, 0(s5)
+    add s5, s5, 4
 
     addi s1, s1, 1        # i = i + 1
     blt s1, s2, reconLoop    

@@ -113,3 +113,39 @@ class ByteAccessTest extends AnyFlatSpec with ChiselScalatestTester {
     }
   }
 }
+
+class SlicingTest extends AnyFlatSpec with ChiselScalatestTester {
+  behavior.of("Single Cycle CPU")
+  it should "calculate the bit slicing matrix" in {
+    test(new TestTopModule("slicing_rv32emu.asmbin")).withAnnotations(TestAnnotations.annos) { c =>
+      for (i <- 1 to 20) {
+        c.clock.step(1000)
+        c.io.mem_debug_read_address.poke((i * 4).U) // Avoid timeout
+      }
+
+      val test_size = List(4, 9, 6)
+      val test0_ans = List(255.U, 0.U, 255.U, 0.U)
+      val base_addr = 4
+      for (i <- 0 to test_size(0)-1) {
+        c.io.mem_debug_read_address.poke((i * 4 + 4).U)
+        c.clock.step()
+        c.io.mem_debug_read_data.expect(test0_ans(i))
+      }
+
+      val test1_ans = List(255.U, 255.U, 0.U, 255.U, 255.U, 255.U, 255.U, 255.U, 255.U)
+      for (i <- 0 to test_size(1)-1) {
+        c.io.mem_debug_read_address.poke((i * 4 + 20).U)
+        c.clock.step()
+        c.io.mem_debug_read_data.expect(test1_ans(i))
+      }
+
+      val test2_ans = List(0.U, 0.U, 255.U, 255.U, 255.U, 255.U)
+      for (i <- 0 to test_size(2)-1) {
+        c.io.mem_debug_read_address.poke((i * 4 + 56).U)
+        c.clock.step()
+        c.io.mem_debug_read_data.expect(test2_ans(i))
+      }
+
+    }
+  }
+}
