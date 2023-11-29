@@ -45,13 +45,6 @@ class Execute extends Module {
     )
   )
   
-  // ALU op2 from reg: R-type,
-  // ALU op2 from imm: L-Type (I-type subtype),
-  //                   I-type (nop=addi, jalr, csr-class, fence),
-  //                   J-type (jal),
-  //                   U-type (lui, auipc),
-  //                   S-type (rs2 value sent to MemControl, ALU computes rs1 + imm.)
-  //                   B-type (rs2 compares with rs1 in jump judge unit, ALU computes jump address PC+imm.)
   alu.io.op2 := MuxLookup(io.aluop2_source, io.immediate)(IndexedSeq(
       0.U -> io.reg2_data,
       1.U -> io.immediate
